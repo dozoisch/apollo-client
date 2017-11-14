@@ -1,84 +1,102 @@
 {
+  "name": "@dozoisch/apollo-client",
   "private": true,
-  "license": "MIT",
+  "version": "2.0.3",
+  "description": "A simple yet functional GraphQL client.",
+  "main": "./lib/apollo.umd.js",
+  "module": "./lib/index.js",
+  "jsnext:main": "/lib/index.js",
+  "typings": "./lib/index.d.ts",
   "scripts": {
-    "bootstrap": "npm i && lerna bootstrap",
-    "postinstall": "lerna bootstrap",
-    "postbootstrap": "npm run build",
-    "build": "lerna run -- build",
-    "test": "lerna run -- test",
-    "prelint": "npm run lint-fix",
-    "lint": "lerna run -- lint",
-    "lint-fix":
-      "prettier --trailing-comma all --single-quote --write \"packages/*/{src,tests,test,benchmark}/**/*.{j,t}s*\"",
-    "lint-staged": "lint-staged",
-    "filesize": "lerna run -- filesize && bundlesize",
-    "type-check": "lerna run -- type-check",
-    "coverage": "lerna run -- coverage",
-    "coverage:upload": "codecov",
-    "danger": "danger run --verbose",
-    "deploy":
-      "lerna publish -m \"chore: Publish\" --independent && cd packages/apollo-client && npm run deploy"
+    "coverage": "jest --coverage",
+    "dev": "./scripts/dev.sh",
+    "deploy": "./scripts/deploy.sh",
+    "test": "jest",
+    "benchmark":
+      "npm run build:benchmark && node benchmark_lib/benchmark/index.js",
+    "benchmark:inspect":
+      "npm run build:benchmark && node --inspect --debug-brk benchmark_lib/benchmark/index.js",
+    "filesize": "npm run build && npm run build:browser",
+    "type-check": "flow check",
+    "build": "tsc",
+    "build:benchmark": "tsc -p tsconfig.benchmark.json",
+    "build:browser":
+      "browserify ./lib/apollo.umd.js -o=./lib/bundle.js --i apollo-utilities --i apollo-cache --i apollo-link && npm run minify:browser",
+    "minify:browser":
+      "uglifyjs -c -m -o ./lib/bundle.min.js -- ./lib/bundle.js",
+    "watch": "tsc -w",
+    "bundle": "rollup -c",
+    "postbuild": "npm run bundle",
+    "lint": "tslint --type-check -p tsconfig.json src/*.ts",
+    "testonly": "jest",
+    "preanalyze": "npm run build",
+    "analyze": "webpack -p --config analyze/webpack.config.js"
   },
-  "bundlesize": [
-    {
-      "name": "apollo-cache",
-      "path": "./packages/apollo-cache/lib/bundle.min.js",
-      "maxSize": "1 kB"
-    },
-    {
-      "name": "apollo-cache-inmemory",
-      "path": "./packages/apollo-cache-inmemory/lib/bundle.min.js",
-      "maxSize": "6.2 kB"
-    },
-    {
-      "name": "apollo-client",
-      "path": "./packages/apollo-client/lib/bundle.min.js",
-      "maxSize": "11.6 kB"
-    },
-    {
-      "name": "apollo-client-preset",
-      "path": "./packages/apollo-client-preset/lib/bundle.min.js",
-      "maxSize": "30 kB"
-    },
-    {
-      "name": "apollo-utilities",
-      "path": "./packages/apollo-utilities/lib/bundle.min.js",
-      "maxSize": "4.75 kB"
-    },
-    {
-      "name": "graphql-anywhere",
-      "path": "./packages/graphql-anywhere/lib/bundle.min.js",
-      "maxSize": "1.7 kB"
-    }
+  "repository": {
+    "type": "git",
+    "url": "apollographql/apollo-client"
+  },
+  "pre-commit": "lint-staged",
+  "keywords": [
+    "ecmascript",
+    "es2015",
+    "jsnext",
+    "javascript",
+    "relay",
+    "npm",
+    "react"
   ],
+  "author": "Sashko Stubailo <sashko@stubailo.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/zen-observable": "^0.5.3",
+    "apollo-cache": "^1.0.0",
+    "apollo-link": "1.0.0",
+    "apollo-link-dedup": "1.0.0",
+    "apollo-utilities": "^1.0.0",
+    "symbol-observable": "^1.0.2",
+    "zen-observable": "^0.6.0"
+  },
+  "peerDependencies": {
+    "graphql": "^0.11.0"
+  },
+  "devDependencies": {
+    "@types/benchmark": "1.0.30",
+    "@types/graphql": "0.9.4",
+    "@types/isomorphic-fetch": "0.0.34",
+    "@types/jest": "21.1.6",
+    "@types/lodash": "4.14.85",
+    "@types/node": "8.0.51",
+    "apollo-cache-inmemory": "1.1.0",
+    "benchmark": "2.1.4",
+    "browserify": "14.5.0",
+    "bundlesize": "0.15.3",
+    "danger": "1.1.0",
+    "flow-bin": "0.59.0",
+    "graphql": "0.11.7",
+    "graphql-tag": "2.4.2",
+    "isomorphic-fetch": "2.2.1",
+    "jest": "20.0.4",
+    "lint-staged": "5.0.0",
+    "lodash": "4.17.4",
+    "rollup": "0.51.5",
+    "rxjs": "5.5.2",
+    "ts-jest": "20.0.14",
+    "tslint": "5.8.0",
+    "typescript": "2.4.2",
+    "uglify-js": "3.1.9",
+    "webpack": "3.7.1",
+    "webpack-bundle-analyzer": "2.9.1"
+  },
+  "optionalDependencies": {
+    "@types/async": "2.0.45"
+  },
   "jest": {
     "transform": {
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    }
-  },
-  "lint-staged": {
-    "*.ts*": [
-      "prettier --trailing-comma all --single-quote --write",
-      "git add"
-    ],
-    "*.js*": [
-      "prettier --trailing-comma all --single-quote --write",
-      "git add"
-    ],
-    "*.json*": ["prettier --write", "git add"]
-  },
-  "pre-commit": "lint-staged",
-  "dependencies": {},
-  "devDependencies": {
-    "bundlesize": "0.15.3",
-    "codecov": "3.0.0",
-    "danger": "1.2.0",
-    "lerna": "2.5.1",
-    "lint-staged": "5.0.0",
-    "pre-commit": "1.2.2",
-    "prettier": "1.8.2",
-    "ts-jest": "20.0.14",
-    "typescript": "2.5.2"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
+    "setupFiles": ["<rootDir>/scripts/tests.js"]
   }
 }
