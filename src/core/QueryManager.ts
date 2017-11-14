@@ -941,7 +941,7 @@ export class QueryManager<TStore> {
       const { newData } = this.getQuery(observableQuery.queryId);
       if (newData) {
         return maybeDeepFreeze({
-          data: newData.data || newData.result,
+          data: newData.data || (newData as any).result,
           partial: false,
         });
       } else {
