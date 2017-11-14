@@ -780,11 +780,11 @@ export class QueryManager<TStore> {
     const queryName = definition.name ? definition.name.value : null;
     this.setQuery(queryId, () => ({ observableQuery: null }));
     if (queryName) {
-      this.queryIdsByName[queryName] = this.queryIdsByName[
-        queryName
-      ].filter(val => {
-        return !(observableQuery.queryId === val);
-      });
+      this.queryIdsByName[queryName] = this.queryIdsByName[queryName].filter(
+        val => {
+          return !(observableQuery.queryId === val);
+        },
+      );
     }
   }
 
@@ -940,7 +940,10 @@ export class QueryManager<TStore> {
     } else {
       const { newData } = this.getQuery(observableQuery.queryId);
       if (newData) {
-        return maybeDeepFreeze({ data: newData.data, partial: false });
+        return maybeDeepFreeze({
+          data: newData.data || newData.result,
+          partial: false,
+        });
       } else {
         try {
           // the query is brand new, so we read from the store to see if anything is there
