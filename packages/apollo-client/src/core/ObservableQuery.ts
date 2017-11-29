@@ -570,7 +570,10 @@ export class ObservableQuery<T> extends Observable<ApolloQueryResult<T>> {
       },
       error: (error: ApolloError) => {
         this.lastError = error;
-        this.observers.forEach(obs => obs.error && obs.error(error));
+        // Temp patch, don't teardown on network errors.
+        if (error.message.toLowerCase().indexOf('network error') === -1) {
+          this.observers.forEach(obs => obs.error && obs.error(error));
+        }
       },
     };
 
